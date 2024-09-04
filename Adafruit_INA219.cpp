@@ -157,7 +157,7 @@ void Adafruit_INA219::setCalibration_ATDev_32V_2A() {
  */
 void Adafruit_INA219::init() {
   // Set chip to large range config values to start
-  setCalibration_32V_2A();
+  setCalibration_ATDev_32V_2A();
 }
 
 /*!
