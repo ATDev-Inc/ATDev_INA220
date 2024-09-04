@@ -186,7 +186,7 @@ private:
   uint32_t ina219_calValue;
   // The following multipliers are used to convert raw current and power
   // values to mA and mW, taking into account the current config settings
-  uint32_t ina219_currentDivider_mA;
+  float ina219_currentDivider_mA;
   float ina219_powerMultiplier_mW;
 
   void init();

@@ -134,8 +134,8 @@ void Adafruit_INA219::setCalibration_ATDev_32V_2A() {
   // MaximumPower = 335.52W
 
   // Set multipliers to convert raw current/power values
-  ina219_currentDivider_mA = 10; // Current LSB = 100uA per bit (1000/100 = 10)
-  ina219_powerMultiplier_mW = 2; // Power LSB = 1mW per bit (2/1)
+  ina219_currentDivider_mA = 3.125f; // Current LSB = 320uA per bit (1000/320 = 3.125)
+  ina219_powerMultiplier_mW = 6.4f; // Power LSB = 1mW per bit (2/1)
 
   // Set Calibration register to 'Cal' calculated above
   Adafruit_BusIO_Register calibration_reg =
@@ -257,7 +257,7 @@ float Adafruit_INA219::getBusVoltage_V() {
  */
 float Adafruit_INA219::getCurrent_mA() {
   float valueDec = getCurrent_raw();
-  // valueDec /= ina219_currentDivider_mA;
+  valueDec /= ina219_currentDivider_mA;
   return valueDec;
 }
 
