@@ -38,7 +38,7 @@
   (0x40 | (INA_ADDR0 != 0 ? 0x01 : 0x00) | (INA_ADDR1 != 0 ? 0x04 : 0x00))
 
 /** default I2C address **/
-#define INA219_ADDRESS (0x40) // 1000000 (A0+A1=GND)
+#define INA219_ADDRESS (0x41) // 1000001 (A0=V A1=GND)
 
 /** read **/
 #define INA219_READ (0x01)
@@ -166,6 +166,7 @@ public:
   Adafruit_INA219(uint8_t addr = INA219_ADDRESS);
   ~Adafruit_INA219();
   bool begin(TwoWire *theWire = &Wire);
+  void setCalibration_ATDev_32V_2A();
   void setCalibration_32V_2A();
   void setCalibration_32V_1A();
   void setCalibration_16V_400mA();
