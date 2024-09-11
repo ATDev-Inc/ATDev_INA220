@@ -1,5 +1,5 @@
 /*!
- * @file Adafruit_INA220.h
+ * @file ATDev_INA220.h
  *
  * This is a library for the Adafruit INA220 breakout board
  * ----> https://www.adafruit.com/product/904
@@ -14,8 +14,8 @@
  *
  */
 
-#ifndef _LIB_ADAFRUIT_INA220_
-#define _LIB_ADAFRUIT_INA220_
+#ifndef _LIB_ATDev_INA220_
+#define _LIB_ATDev_INA220_
 
 #include "Arduino.h"
 #include <Adafruit_BusIO_Register.h>
@@ -161,10 +161,10 @@ enum {
  *   @brief  Class that stores state and functions for interacting with INA220
  *  current/power monitor IC
  */
-class Adafruit_INA220 {
+class ATDev_INA220 {
 public:
-  Adafruit_INA220(uint8_t addr = INA220_ADDRESS);
-  ~Adafruit_INA220();
+  ATDev_INA220(uint8_t addr = INA220_ADDRESS);
+  ~ATDev_INA220();
   bool begin(TwoWire *theWire = &Wire);
   void setCalibration_ATDev_32V_2A();
   void setCalibration_32V_2A();

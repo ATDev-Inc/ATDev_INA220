@@ -1,5 +1,5 @@
 /*!
- * @file Adafruit_INA220.cpp
+ * @file ATDev_INA220.cpp
  *
  * @mainpage Adafruit INA220 current/power monitor IC
  *
@@ -28,13 +28,13 @@
 
 #include <Wire.h>
 
-#include "Adafruit_INA220.h"
+#include "ATDev_INA220.h"
 
 /*!
  *  @brief  Instantiates a new INA220 class
  *  @param addr the I2C address the device can be found on. Default is 0x40
  */
-Adafruit_INA220::Adafruit_INA220(uint8_t addr) {
+ATDev_INA220::ATDev_INA220(uint8_t addr) {
   INA220_i2caddr = addr;
   INA220_currentDivider_mA = 0;
   INA220_powerMultiplier_mW = 0.0f;
@@ -43,14 +43,14 @@ Adafruit_INA220::Adafruit_INA220(uint8_t addr) {
 /*!
  *  @brief INA220 class destructor
  */
-Adafruit_INA220::~Adafruit_INA220() { delete i2c_dev; }
+ATDev_INA220::~ATDev_INA220() { delete i2c_dev; }
 
 /*!
  *  @brief  Sets up the HW (defaults to 32V and 2A for calibration values)
  *  @param theWire the TwoWire object to use
  *  @return true: success false: Failed to start I2C
  */
-bool Adafruit_INA220::begin(TwoWire *theWire) {
+bool ATDev_INA220::begin(TwoWire *theWire) {
   if (!i2c_dev) {
     i2c_dev = new Adafruit_I2CDevice(INA220_i2caddr, theWire);
   }
@@ -69,7 +69,7 @@ bool Adafruit_INA220::begin(TwoWire *theWire) {
  *          occurs at 3.2A.
  *  @note   These calculations assume a 0.1 ohm resistor is present
  */
-void Adafruit_INA220::setCalibration_ATDev_32V_2A() {
+void ATDev_INA220::setCalibration_ATDev_32V_2A() {
   // By default we use a pretty huge range for the input voltage,
   // which probably isn't the most appropriate choice for system
   // that don't use a lot of power.  But all of the calculations
@@ -155,7 +155,7 @@ void Adafruit_INA220::setCalibration_ATDev_32V_2A() {
 /*!
  *  @brief  begin I2C and set up the hardware
  */
-void Adafruit_INA220::init() {
+void ATDev_INA220::init() {
   // Set chip to large range config values to start
   setCalibration_ATDev_32V_2A();
 }
@@ -164,7 +164,7 @@ void Adafruit_INA220::init() {
  *  @brief  Gets the raw bus voltage (16-bit signed integer, so +-32767)
  *  @return the raw bus voltage reading
  */
-int16_t Adafruit_INA220::getBusVoltage_raw() {
+int16_t ATDev_INA220::getBusVoltage_raw() {
   uint16_t value;
 
   Adafruit_BusIO_Register bus_voltage_reg =
@@ -179,7 +179,7 @@ int16_t Adafruit_INA220::getBusVoltage_raw() {
  *  @brief  Gets the raw shunt voltage (16-bit signed integer, so +-32767)
  *  @return the raw shunt voltage reading
  */
-int16_t Adafruit_INA220::getShuntVoltage_raw() {
+int16_t ATDev_INA220::getShuntVoltage_raw() {
   uint16_t value;
   Adafruit_BusIO_Register shunt_voltage_reg =
       Adafruit_BusIO_Register(i2c_dev, INA220_REG_SHUNTVOLTAGE, 2, MSBFIRST);
@@ -191,7 +191,7 @@ int16_t Adafruit_INA220::getShuntVoltage_raw() {
  *  @brief  Gets the raw current value (16-bit signed integer, so +-32767)
  *  @return the raw current reading
  */
-int16_t Adafruit_INA220::getCurrent_raw() {
+int16_t ATDev_INA220::getCurrent_raw() {
   uint16_t value;
 
   // Sometimes a sharp load will reset the INA220, which will
@@ -213,7 +213,7 @@ int16_t Adafruit_INA220::getCurrent_raw() {
  *  @brief  Gets the raw power value (16-bit signed integer, so +-32767)
  *  @return raw power reading
  */
-int16_t Adafruit_INA220::getPower_raw() {
+int16_t ATDev_INA220::getPower_raw() {
   uint16_t value;
 
   // Sometimes a sharp load will reset the INA220, which will
@@ -235,7 +235,7 @@ int16_t Adafruit_INA220::getPower_raw() {
  *  @brief  Gets the shunt voltage in mV (so +-327mV)
  *  @return the shunt voltage converted to millivolts
  */
-float Adafruit_INA220::getShuntVoltage_mV() {
+float ATDev_INA220::getShuntVoltage_mV() {
   int16_t value;
   value = getShuntVoltage_raw();
   return value * 0.01;
@@ -245,7 +245,7 @@ float Adafruit_INA220::getShuntVoltage_mV() {
  *  @brief  Gets the bus voltage in volts
  *  @return the bus voltage converted to volts
  */
-float Adafruit_INA220::getBusVoltage_V() {
+float ATDev_INA220::getBusVoltage_V() {
   int16_t value = getBusVoltage_raw();
   return value * 0.001;
 }
@@ -255,7 +255,7 @@ float Adafruit_INA220::getBusVoltage_V() {
  *          config settings and current LSB
  *  @return the current reading convereted to milliamps
  */
-float Adafruit_INA220::getCurrent_mA() {
+float ATDev_INA220::getCurrent_mA() {
   float valueDec = getCurrent_raw();
   valueDec /= INA220_currentDivider_mA;
   return valueDec;
@@ -266,7 +266,7 @@ float Adafruit_INA220::getCurrent_mA() {
  *          config settings and current LSB
  *  @return power reading converted to milliwatts
  */
-float Adafruit_INA220::getPower_mW() {
+float ATDev_INA220::getPower_mW() {
   float valueDec = getPower_raw();
   valueDec *= INA220_powerMultiplier_mW;
   return valueDec;
@@ -279,7 +279,7 @@ float Adafruit_INA220::getPower_mW() {
  *          occurs at 3.2A.
  *  @note   These calculations assume a 0.1 ohm resistor is present
  */
-void Adafruit_INA220::setCalibration_32V_2A() {
+void ATDev_INA220::setCalibration_32V_2A() {
   // By default we use a pretty huge range for the input voltage,
   // which probably isn't the most appropriate choice for system
   // that don't use a lot of power.  But all of the calculations
@@ -367,7 +367,7 @@ void Adafruit_INA220::setCalibration_32V_2A() {
  *  @param  on
  *          boolean value
  */
-void Adafruit_INA220::powerSave(bool on) {
+void ATDev_INA220::powerSave(bool on) {
   Adafruit_BusIO_Register config_reg =
       Adafruit_BusIO_Register(i2c_dev, INA220_REG_CONFIG, 2, MSBFIRST);
 
@@ -387,7 +387,7 @@ void Adafruit_INA220::powerSave(bool on) {
  *          1.3A.
  *  @note   These calculations assume a 0.1 ohm resistor is present
  */
-void Adafruit_INA220::setCalibration_32V_1A() {
+void ATDev_INA220::setCalibration_32V_1A() {
   // By default we use a pretty huge range for the input voltage,
   // which probably isn't the most appropriate choice for system
   // that don't use a lot of power.  But all of the calculations
@@ -478,7 +478,7 @@ void Adafruit_INA220::setCalibration_32V_1A() {
  *     current measurement (0.1mA), at the expense of
  *     only supporting 16V at 400mA max.
  */
-void Adafruit_INA220::setCalibration_16V_400mA() {
+void ATDev_INA220::setCalibration_16V_400mA() {
 
   // Calibration which uses the highest precision for
   // current measurement (0.1mA), at the expense of
@@ -573,4 +573,4 @@ void Adafruit_INA220::setCalibration_16V_400mA() {
  *          e.g. calibration before read/write, only the final operation's
  *          result is stored.
  */
-bool Adafruit_INA220::success() { return _success; }
+bool ATDev_INA220::success() { return _success; }
