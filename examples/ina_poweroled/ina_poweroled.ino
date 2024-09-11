@@ -1,6 +1,6 @@
 // Feather Power Meter
 //
-// Small Feather-based power monitor using an INA219 breakout and
+// Small Feather-based power monitor using an INA220 breakout and
 // monochrome OLED display.
 //
 // Author: Tony DiCola (modded by ladyada)
@@ -12,7 +12,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <Adafruit_INA219.h>
+#include <Adafruit_INA220.h>
 
 // Configure orientation of the display.
 // 0 = none, 1 = 90 degrees clockwise, 2 = 180 degrees, 3 = 270 degrees CW
@@ -20,9 +20,9 @@
 
 #define NEO_PIN 6
 
-// Create NeoPixel, OLED and INA219 globals.
+// Create NeoPixel, OLED and INA220 globals.
 Adafruit_SSD1306 display;
-Adafruit_INA219 ina219;
+Adafruit_INA220 INA220;
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(144, NEO_PIN, NEO_GRB + NEO_KHZ800);
 
 // Keep track of total time and milliamp measurements for milliamp-hour computation.
@@ -47,17 +47,17 @@ void setup()   {
   }
   pixels.begin();
   pixels.show();  // Initialize all pixels to 'off'
-  // Try to initialize the INA219
-  if (! ina219.begin()) {
-    Serial.println("Failed to find INA219 chip");
+  // Try to initialize the INA220
+  if (! INA220.begin()) {
+    Serial.println("Failed to find INA220 chip");
     while (1) { delay(10); }
   }
-  // By default the INA219 will be calibrated with a range of 32V, 2A.
+  // By default the INA220 will be calibrated with a range of 32V, 2A.
   // However uncomment one of the below to change the range.  A smaller
   // range can't measure as large of values but will measure with slightly
   // better precision.
-  //ina219.setCalibration_32V_1A();
-  //ina219.setCalibration_16V_400mA();
+  //INA220.setCalibration_32V_1A();
+  //INA220.setCalibration_16V_400mA();
 
   // Setup the OLED display.
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -179,10 +179,10 @@ uint32_t Wheel(byte WheelPos) {
 
 
 void update_power_display() {
-  // Read voltage and current from INA219.
-  float shuntvoltage = ina219.getShuntVoltage_mV();
-  float busvoltage = ina219.getBusVoltage_V();
-  float current_mA = ina219.getCurrent_mA();
+  // Read voltage and current from INA220.
+  float shuntvoltage = INA220.getShuntVoltage_mV();
+  float busvoltage = INA220.getBusVoltage_V();
+  float current_mA = INA220.getCurrent_mA();
 
   // Compute load voltage, power, and milliamp-hours.
   float loadvoltage = busvoltage + (shuntvoltage / 1000);

@@ -1,7 +1,7 @@
 #include <Wire.h>
-#include <Adafruit_INA219.h>
+#include <Adafruit_INA220.h>
 
-Adafruit_INA219 ina219;
+Adafruit_INA220 INA220;
 
 
 void setup(void) 
@@ -14,19 +14,19 @@ void setup(void)
     
   Serial.println("Hello!");
   
-  // Initialize the INA219.
+  // Initialize the INA220.
   // By default the initialization will use the largest range (32V, 2A).  However
   // you can call a setCalibration function to change this range (see comments).
-  if (! ina219.begin()) {
-    Serial.println("Failed to find INA219 chip");
+  if (! INA220.begin()) {
+    Serial.println("Failed to find INA220 chip");
     while (1) { delay(10); }
   }
   // To use a slightly lower 32V, 1A range (higher precision on amps):
-  //ina219.setCalibration_32V_1A();
+  //INA220.setCalibration_32V_1A();
   // Or to use a lower 16V, 400mA range (higher precision on volts and amps):
-  //ina219.setCalibration_16V_400mA();
+  //INA220.setCalibration_16V_400mA();
 
-  Serial.println("Measuring voltage and current with INA219 ...");
+  Serial.println("Measuring voltage and current with INA220 ...");
 }
 
 void loop(void) 
@@ -37,10 +37,10 @@ void loop(void)
   float loadvoltage = 0;
   float power_mW = 0;
 
-  shuntvoltage = ina219.getShuntVoltage_mV();
-  busvoltage = ina219.getBusVoltage_V();
-  current_mA = ina219.getCurrent_mA();
-  power_mW = ina219.getPower_mW();
+  shuntvoltage = INA220.getShuntVoltage_mV();
+  busvoltage = INA220.getBusVoltage_V();
+  current_mA = INA220.getCurrent_mA();
+  power_mW = INA220.getPower_mW();
   loadvoltage = busvoltage + (shuntvoltage / 1000);
   
   Serial.print("Bus Voltage:   "); Serial.print(busvoltage); Serial.println(" V");

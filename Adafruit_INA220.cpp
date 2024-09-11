@@ -1,13 +1,13 @@
 /*!
- * @file Adafruit_INA219.cpp
+ * @file Adafruit_INA220.cpp
  *
- * @mainpage Adafruit INA219 current/power monitor IC
+ * @mainpage Adafruit INA220 current/power monitor IC
  *
  * @section intro_sec Introduction
  *
- *  Driver for the INA219 current sensor
+ *  Driver for the INA220 current sensor
  *
- *  This is a library for the Adafruit INA219 breakout
+ *  This is a library for the Adafruit INA220 breakout
  *  ----> https://www.adafruit.com/product/904
  *
  *  Adafruit invests time and resources providing this open source code,
@@ -28,31 +28,31 @@
 
 #include <Wire.h>
 
-#include "Adafruit_INA219.h"
+#include "Adafruit_INA220.h"
 
 /*!
- *  @brief  Instantiates a new INA219 class
+ *  @brief  Instantiates a new INA220 class
  *  @param addr the I2C address the device can be found on. Default is 0x40
  */
-Adafruit_INA219::Adafruit_INA219(uint8_t addr) {
-  ina219_i2caddr = addr;
-  ina219_currentDivider_mA = 0;
-  ina219_powerMultiplier_mW = 0.0f;
+Adafruit_INA220::Adafruit_INA220(uint8_t addr) {
+  INA220_i2caddr = addr;
+  INA220_currentDivider_mA = 0;
+  INA220_powerMultiplier_mW = 0.0f;
 }
 
 /*!
- *  @brief INA219 class destructor
+ *  @brief INA220 class destructor
  */
-Adafruit_INA219::~Adafruit_INA219() { delete i2c_dev; }
+Adafruit_INA220::~Adafruit_INA220() { delete i2c_dev; }
 
 /*!
  *  @brief  Sets up the HW (defaults to 32V and 2A for calibration values)
  *  @param theWire the TwoWire object to use
  *  @return true: success false: Failed to start I2C
  */
-bool Adafruit_INA219::begin(TwoWire *theWire) {
+bool Adafruit_INA220::begin(TwoWire *theWire) {
   if (!i2c_dev) {
-    i2c_dev = new Adafruit_I2CDevice(ina219_i2caddr, theWire);
+    i2c_dev = new Adafruit_I2CDevice(INA220_i2caddr, theWire);
   }
 
   if (!i2c_dev->begin()) {
@@ -63,13 +63,13 @@ bool Adafruit_INA219::begin(TwoWire *theWire) {
 }
 
 /*!
- *  @brief  Configures to INA219 to be able to measure up to 32V and 2A
+ *  @brief  Configures to INA220 to be able to measure up to 32V and 2A
  *          of current.  Each unit of current corresponds to 100uA, and
  *          each unit of power corresponds to 2mW. Counter overflow
  *          occurs at 3.2A.
  *  @note   These calculations assume a 0.1 ohm resistor is present
  */
-void Adafruit_INA219::setCalibration_ATDev_32V_2A() {
+void Adafruit_INA220::setCalibration_ATDev_32V_2A() {
   // By default we use a pretty huge range for the input voltage,
   // which probably isn't the most appropriate choice for system
   // that don't use a lot of power.  But all of the calculations
@@ -102,7 +102,7 @@ void Adafruit_INA219::setCalibration_ATDev_32V_2A() {
   // Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
   // Cal = trunc ( 0.04096 / (0.0002 * 0.004 ))
 
-  ina219_calValue = 32000; 
+  INA220_calValue = 32000; 
 
   // 6. Calculate the power LSB
   // PowerLSB = 20 * CurrentLSB
@@ -134,28 +134,28 @@ void Adafruit_INA219::setCalibration_ATDev_32V_2A() {
   // MaximumPower = 335.52W
 
   // Set multipliers to convert raw current/power values
-  ina219_currentDivider_mA = 3.125f; // Current LSB = 320uA per bit (1000/320 = 3.125)
-  ina219_powerMultiplier_mW = 6.4f; // Power LSB = 1mW per bit (2/1)
+  INA220_currentDivider_mA = 3.125f; // Current LSB = 320uA per bit (1000/320 = 3.125)
+  INA220_powerMultiplier_mW = 6.4f; // Power LSB = 1mW per bit (2/1)
 
   // Set Calibration register to 'Cal' calculated above
   Adafruit_BusIO_Register calibration_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CALIBRATION, 2, MSBFIRST);
-  calibration_reg.write(ina219_calValue, 2);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CALIBRATION, 2, MSBFIRST);
+  calibration_reg.write(INA220_calValue, 2);
 
   // Set Config register to take into account the settings above
-  uint16_t config = INA219_CONFIG_BVOLTAGERANGE_32V |
-                    INA219_CONFIG_GAIN_1_40MV | INA219_CONFIG_BADCRES_12BIT |
-                    INA219_CONFIG_SADCRES_12BIT_1S_532US |
-                    INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
+  uint16_t config = INA220_CONFIG_BVOLTAGERANGE_32V |
+                    INA220_CONFIG_GAIN_1_40MV | INA220_CONFIG_BADCRES_12BIT |
+                    INA220_CONFIG_SADCRES_12BIT_1S_532US |
+                    INA220_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
   Adafruit_BusIO_Register config_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CONFIG, 2, MSBFIRST);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CONFIG, 2, MSBFIRST);
   _success = config_reg.write(config, 2);
 }
 
 /*!
  *  @brief  begin I2C and set up the hardware
  */
-void Adafruit_INA219::init() {
+void Adafruit_INA220::init() {
   // Set chip to large range config values to start
   setCalibration_ATDev_32V_2A();
 }
@@ -164,11 +164,11 @@ void Adafruit_INA219::init() {
  *  @brief  Gets the raw bus voltage (16-bit signed integer, so +-32767)
  *  @return the raw bus voltage reading
  */
-int16_t Adafruit_INA219::getBusVoltage_raw() {
+int16_t Adafruit_INA220::getBusVoltage_raw() {
   uint16_t value;
 
   Adafruit_BusIO_Register bus_voltage_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_BUSVOLTAGE, 2, MSBFIRST);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_BUSVOLTAGE, 2, MSBFIRST);
   _success = bus_voltage_reg.read(&value);
 
   // Shift to the right 3 to drop CNVR and OVF and multiply by LSB
@@ -179,10 +179,10 @@ int16_t Adafruit_INA219::getBusVoltage_raw() {
  *  @brief  Gets the raw shunt voltage (16-bit signed integer, so +-32767)
  *  @return the raw shunt voltage reading
  */
-int16_t Adafruit_INA219::getShuntVoltage_raw() {
+int16_t Adafruit_INA220::getShuntVoltage_raw() {
   uint16_t value;
   Adafruit_BusIO_Register shunt_voltage_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_SHUNTVOLTAGE, 2, MSBFIRST);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_SHUNTVOLTAGE, 2, MSBFIRST);
   _success = shunt_voltage_reg.read(&value);
   return value;
 }
@@ -191,20 +191,20 @@ int16_t Adafruit_INA219::getShuntVoltage_raw() {
  *  @brief  Gets the raw current value (16-bit signed integer, so +-32767)
  *  @return the raw current reading
  */
-int16_t Adafruit_INA219::getCurrent_raw() {
+int16_t Adafruit_INA220::getCurrent_raw() {
   uint16_t value;
 
-  // Sometimes a sharp load will reset the INA219, which will
+  // Sometimes a sharp load will reset the INA220, which will
   // reset the cal register, meaning CURRENT and POWER will
   // not be available ... avoid this by always setting a cal
   // value even if it's an unfortunate extra step
   Adafruit_BusIO_Register calibration_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CALIBRATION, 2, MSBFIRST);
-  calibration_reg.write(ina219_calValue, 2);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CALIBRATION, 2, MSBFIRST);
+  calibration_reg.write(INA220_calValue, 2);
 
   // Now we can safely read the CURRENT register!
   Adafruit_BusIO_Register current_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CURRENT, 2, MSBFIRST);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CURRENT, 2, MSBFIRST);
   _success = current_reg.read(&value);
   return value;
 }
@@ -213,20 +213,20 @@ int16_t Adafruit_INA219::getCurrent_raw() {
  *  @brief  Gets the raw power value (16-bit signed integer, so +-32767)
  *  @return raw power reading
  */
-int16_t Adafruit_INA219::getPower_raw() {
+int16_t Adafruit_INA220::getPower_raw() {
   uint16_t value;
 
-  // Sometimes a sharp load will reset the INA219, which will
+  // Sometimes a sharp load will reset the INA220, which will
   // reset the cal register, meaning CURRENT and POWER will
   // not be available ... avoid this by always setting a cal
   // value even if it's an unfortunate extra step
   Adafruit_BusIO_Register calibration_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CALIBRATION, 2, MSBFIRST);
-  calibration_reg.write(ina219_calValue, 2);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CALIBRATION, 2, MSBFIRST);
+  calibration_reg.write(INA220_calValue, 2);
 
   // Now we can safely read the POWER register!
   Adafruit_BusIO_Register power_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_POWER, 2, MSBFIRST);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_POWER, 2, MSBFIRST);
   _success = power_reg.read(&value);
   return value;
 }
@@ -235,7 +235,7 @@ int16_t Adafruit_INA219::getPower_raw() {
  *  @brief  Gets the shunt voltage in mV (so +-327mV)
  *  @return the shunt voltage converted to millivolts
  */
-float Adafruit_INA219::getShuntVoltage_mV() {
+float Adafruit_INA220::getShuntVoltage_mV() {
   int16_t value;
   value = getShuntVoltage_raw();
   return value * 0.01;
@@ -245,7 +245,7 @@ float Adafruit_INA219::getShuntVoltage_mV() {
  *  @brief  Gets the bus voltage in volts
  *  @return the bus voltage converted to volts
  */
-float Adafruit_INA219::getBusVoltage_V() {
+float Adafruit_INA220::getBusVoltage_V() {
   int16_t value = getBusVoltage_raw();
   return value * 0.001;
 }
@@ -255,9 +255,9 @@ float Adafruit_INA219::getBusVoltage_V() {
  *          config settings and current LSB
  *  @return the current reading convereted to milliamps
  */
-float Adafruit_INA219::getCurrent_mA() {
+float Adafruit_INA220::getCurrent_mA() {
   float valueDec = getCurrent_raw();
-  valueDec /= ina219_currentDivider_mA;
+  valueDec /= INA220_currentDivider_mA;
   return valueDec;
 }
 
@@ -266,20 +266,20 @@ float Adafruit_INA219::getCurrent_mA() {
  *          config settings and current LSB
  *  @return power reading converted to milliwatts
  */
-float Adafruit_INA219::getPower_mW() {
+float Adafruit_INA220::getPower_mW() {
   float valueDec = getPower_raw();
-  valueDec *= ina219_powerMultiplier_mW;
+  valueDec *= INA220_powerMultiplier_mW;
   return valueDec;
 }
 
 /*!
- *  @brief  Configures to INA219 to be able to measure up to 32V and 2A
+ *  @brief  Configures to INA220 to be able to measure up to 32V and 2A
  *          of current.  Each unit of current corresponds to 100uA, and
  *          each unit of power corresponds to 2mW. Counter overflow
  *          occurs at 3.2A.
  *  @note   These calculations assume a 0.1 ohm resistor is present
  */
-void Adafruit_INA219::setCalibration_32V_2A() {
+void Adafruit_INA220::setCalibration_32V_2A() {
   // By default we use a pretty huge range for the input voltage,
   // which probably isn't the most appropriate choice for system
   // that don't use a lot of power.  But all of the calculations
@@ -312,7 +312,7 @@ void Adafruit_INA219::setCalibration_32V_2A() {
   // Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
   // Cal = 4096 (0x1000)
 
-  ina219_calValue = 4096;
+  INA220_calValue = 4096;
 
   // 6. Calculate the power LSB
   // PowerLSB = 20 * CurrentLSB
@@ -344,21 +344,21 @@ void Adafruit_INA219::setCalibration_32V_2A() {
   // MaximumPower = 102.4W
 
   // Set multipliers to convert raw current/power values
-  ina219_currentDivider_mA = 10; // Current LSB = 100uA per bit (1000/100 = 10)
-  ina219_powerMultiplier_mW = 2; // Power LSB = 1mW per bit (2/1)
+  INA220_currentDivider_mA = 10; // Current LSB = 100uA per bit (1000/100 = 10)
+  INA220_powerMultiplier_mW = 2; // Power LSB = 1mW per bit (2/1)
 
   // Set Calibration register to 'Cal' calculated above
   Adafruit_BusIO_Register calibration_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CALIBRATION, 2, MSBFIRST);
-  calibration_reg.write(ina219_calValue, 2);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CALIBRATION, 2, MSBFIRST);
+  calibration_reg.write(INA220_calValue, 2);
 
   // Set Config register to take into account the settings above
-  uint16_t config = INA219_CONFIG_BVOLTAGERANGE_32V |
-                    INA219_CONFIG_GAIN_8_320MV | INA219_CONFIG_BADCRES_12BIT |
-                    INA219_CONFIG_SADCRES_12BIT_1S_532US |
-                    INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
+  uint16_t config = INA220_CONFIG_BVOLTAGERANGE_32V |
+                    INA220_CONFIG_GAIN_8_320MV | INA220_CONFIG_BADCRES_12BIT |
+                    INA220_CONFIG_SADCRES_12BIT_1S_532US |
+                    INA220_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
   Adafruit_BusIO_Register config_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CONFIG, 2, MSBFIRST);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CONFIG, 2, MSBFIRST);
   _success = config_reg.write(config, 2);
 }
 
@@ -367,27 +367,27 @@ void Adafruit_INA219::setCalibration_32V_2A() {
  *  @param  on
  *          boolean value
  */
-void Adafruit_INA219::powerSave(bool on) {
+void Adafruit_INA220::powerSave(bool on) {
   Adafruit_BusIO_Register config_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CONFIG, 2, MSBFIRST);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CONFIG, 2, MSBFIRST);
 
   Adafruit_BusIO_RegisterBits mode_bits =
       Adafruit_BusIO_RegisterBits(&config_reg, 3, 0);
   if (on) {
-    _success = mode_bits.write(INA219_CONFIG_MODE_POWERDOWN);
+    _success = mode_bits.write(INA220_CONFIG_MODE_POWERDOWN);
   } else {
-    _success = mode_bits.write(INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS);
+    _success = mode_bits.write(INA220_CONFIG_MODE_SANDBVOLT_CONTINUOUS);
   }
 }
 
 /*!
- *  @brief  Configures to INA219 to be able to measure up to 32V and 1A
+ *  @brief  Configures to INA220 to be able to measure up to 32V and 1A
  *          of current.  Each unit of current corresponds to 40uA, and each
  *          unit of power corresponds to 800uW. Counter overflow occurs at
  *          1.3A.
  *  @note   These calculations assume a 0.1 ohm resistor is present
  */
-void Adafruit_INA219::setCalibration_32V_1A() {
+void Adafruit_INA220::setCalibration_32V_1A() {
   // By default we use a pretty huge range for the input voltage,
   // which probably isn't the most appropriate choice for system
   // that don't use a lot of power.  But all of the calculations
@@ -420,7 +420,7 @@ void Adafruit_INA219::setCalibration_32V_1A() {
   // Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
   // Cal = 10240 (0x2800)
 
-  ina219_calValue = 10240;
+  INA220_calValue = 10240;
 
   // 6. Calculate the power LSB
   // PowerLSB = 20 * CurrentLSB
@@ -455,21 +455,21 @@ void Adafruit_INA219::setCalibration_32V_1A() {
   // MaximumPower = 41.94176W
 
   // Set multipliers to convert raw current/power values
-  ina219_currentDivider_mA = 25;    // Current LSB = 40uA per bit (1000/40 = 25)
-  ina219_powerMultiplier_mW = 0.8f; // Power LSB = 800uW per bit
+  INA220_currentDivider_mA = 25;    // Current LSB = 40uA per bit (1000/40 = 25)
+  INA220_powerMultiplier_mW = 0.8f; // Power LSB = 800uW per bit
 
   // Set Calibration register to 'Cal' calculated above
   Adafruit_BusIO_Register calibration_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CALIBRATION, 2, MSBFIRST);
-  calibration_reg.write(ina219_calValue, 2);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CALIBRATION, 2, MSBFIRST);
+  calibration_reg.write(INA220_calValue, 2);
 
   // Set Config register to take into account the settings above
-  uint16_t config = INA219_CONFIG_BVOLTAGERANGE_32V |
-                    INA219_CONFIG_GAIN_8_320MV | INA219_CONFIG_BADCRES_12BIT |
-                    INA219_CONFIG_SADCRES_12BIT_1S_532US |
-                    INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
+  uint16_t config = INA220_CONFIG_BVOLTAGERANGE_32V |
+                    INA220_CONFIG_GAIN_8_320MV | INA220_CONFIG_BADCRES_12BIT |
+                    INA220_CONFIG_SADCRES_12BIT_1S_532US |
+                    INA220_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
   Adafruit_BusIO_Register config_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CONFIG, 2, MSBFIRST);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CONFIG, 2, MSBFIRST);
   _success = config_reg.write(config, 2);
 }
 
@@ -478,7 +478,7 @@ void Adafruit_INA219::setCalibration_32V_1A() {
  *     current measurement (0.1mA), at the expense of
  *     only supporting 16V at 400mA max.
  */
-void Adafruit_INA219::setCalibration_16V_400mA() {
+void Adafruit_INA220::setCalibration_16V_400mA() {
 
   // Calibration which uses the highest precision for
   // current measurement (0.1mA), at the expense of
@@ -509,7 +509,7 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
   // Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
   // Cal = 8192 (0x2000)
 
-  ina219_calValue = 8192;
+  INA220_calValue = 8192;
 
   // 6. Calculate the power LSB
   // PowerLSB = 20 * CurrentLSB
@@ -547,21 +547,21 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
   // MaximumPower = 6.4W
 
   // Set multipliers to convert raw current/power values
-  ina219_currentDivider_mA = 20;    // Current LSB = 50uA per bit (1000/50 = 20)
-  ina219_powerMultiplier_mW = 1.0f; // Power LSB = 1mW per bit
+  INA220_currentDivider_mA = 20;    // Current LSB = 50uA per bit (1000/50 = 20)
+  INA220_powerMultiplier_mW = 1.0f; // Power LSB = 1mW per bit
 
   // Set Calibration register to 'Cal' calculated above
   Adafruit_BusIO_Register calibration_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CALIBRATION, 2, MSBFIRST);
-  calibration_reg.write(ina219_calValue, 2);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CALIBRATION, 2, MSBFIRST);
+  calibration_reg.write(INA220_calValue, 2);
   // Set Config register to take into account the settings above
-  uint16_t config = INA219_CONFIG_BVOLTAGERANGE_16V |
-                    INA219_CONFIG_GAIN_1_40MV | INA219_CONFIG_BADCRES_12BIT |
-                    INA219_CONFIG_SADCRES_12BIT_1S_532US |
-                    INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
+  uint16_t config = INA220_CONFIG_BVOLTAGERANGE_16V |
+                    INA220_CONFIG_GAIN_1_40MV | INA220_CONFIG_BADCRES_12BIT |
+                    INA220_CONFIG_SADCRES_12BIT_1S_532US |
+                    INA220_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
 
   Adafruit_BusIO_Register config_reg =
-      Adafruit_BusIO_Register(i2c_dev, INA219_REG_CONFIG, 2, MSBFIRST);
+      Adafruit_BusIO_Register(i2c_dev, INA220_REG_CONFIG, 2, MSBFIRST);
   _success = config_reg.write(config, 2);
 }
 
@@ -573,4 +573,4 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
  *          e.g. calibration before read/write, only the final operation's
  *          result is stored.
  */
-bool Adafruit_INA219::success() { return _success; }
+bool Adafruit_INA220::success() { return _success; }
